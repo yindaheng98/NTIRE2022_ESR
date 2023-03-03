@@ -3,6 +3,7 @@ import logging
 import torch
 import argparse
 import json
+import tqdm
 
 from pprint import pprint
 from utils.model_summary import get_model_activation, get_model_flops, export_onnx
@@ -420,7 +421,7 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
     start = torch.cuda.Event(enable_timing=True)
     end = torch.cuda.Event(enable_timing=True)
 
-    for i, (img_lr, img_hr) in enumerate(data_path):
+    for i, (img_lr, img_hr) in enumerate(tqdm.tqdm(data_path)):
 
         # --------------------------------
         # (1) img_lr
@@ -457,9 +458,9 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
         if args.ssim:
             ssim = util.calculate_ssim(img_sr, img_hr, border=border)
             results[f"{mode}_ssim"].append(ssim)
-            logger.info("{:s} - PSNR: {:.2f} dB; SSIM: {:.4f}.".format(img_name + ext, psnr, ssim))
-        else:
-            logger.info("{:s} - PSNR: {:.2f} dB".format(img_name + ext, psnr))
+        #    logger.info("{:s} - PSNR: {:.2f} dB; SSIM: {:.4f}.".format(img_name + ext, psnr, ssim))
+        #else:
+        #    logger.info("{:s} - PSNR: {:.2f} dB".format(img_name + ext, psnr))
 
         # if np.ndim(img_hr) == 3:  # RGB image
         #     img_sr_y = util.rgb2ycbcr(img_sr, only_y=True)
