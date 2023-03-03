@@ -341,20 +341,20 @@ def select_model(args, device):
     return model, name, data_range, tile
 
 
-def select_dataset(data_dir, mode):
+def select_dataset(lr_dir, hr_dir, mode):
     if mode == "test":
         path = [
             (
-                os.path.join(data_dir, f"DIV2K_test_LR/{i:04}.png"),
-                os.path.join(data_dir, f"DIV2K_test_HR/{i:04}.png")
+                os.path.join(lr_dir, f"{i:04}.png"),
+                os.path.join(hr_dir, f"{i:04}.png")
             ) for i in range(901, 1001)
         ]
         # [f"DIV2K_test_LR/{i:04}.png" for i in range(901, 1001)]
     else:
         path = [
             (
-                os.path.join(data_dir, f"DIV2K_valid_LR/{i:04}x4.png"),
-                os.path.join(data_dir, f"DIV2K_valid_HR/{i:04}.png")
+                os.path.join(lr_dir, f"{i:04}x4.png"),
+                os.path.join(hr_dir, f"{i:04}.png")
             ) for i in range(801, 901)
         ]
 
@@ -406,7 +406,7 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
     # --------------------------------
     # dataset path
     # --------------------------------
-    data_path = select_dataset(args.data_dir, mode)
+    data_path = select_dataset(args.lr_dir, args.hr_dir, mode)
     save_path = os.path.join(args.save_dir, model_name, "test" if mode == "test" else "valid")
     util.mkdir(save_path)
 
@@ -565,7 +565,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("NTIRE2022-EfficientSR")
-    parser.add_argument("--data_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge", type=str)
+    parser.add_argument("--lr_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge", type=str)
+    parser.add_argument("--hr_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge", type=str)
     parser.add_argument("--save_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge/results", type=str)
     parser.add_argument("--model_id", default=0, type=int)
     parser.add_argument("--include_test", action="store_true", help="Inference on the DIV2K test set")
