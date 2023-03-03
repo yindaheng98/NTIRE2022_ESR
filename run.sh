@@ -5,11 +5,14 @@ conda activate NTIRE23
 ROOT=$(dirname $0)
 
 rm -rf "$ROOT/results"
-rm results.json
 mkdir -p "$ROOT/results"
 CUDA_VISIBLE_DEVICES=1 python test_demo.py \
   --lr_dir /home/data/dataset/DIV2K/DIV2K_valid_LR_bicubic/X4 \
   --hr_dir /home/data/dataset/DIV2K/DIV2K_valid_HR \
   --save_dir "$ROOT/results" \
   --model_id -2
-cat results.json | jq
+
+printf "%20s %12s %17s %14s %5s\n" model_name valid_memory valid_ave_runtime valid_ave_psnr flops
+for line in $(cat results.json | jq -r 'to_entries|.[]|[.key,.value.valid_memory,.value.valid_ave_runtime,.value.valid_ave_psnr,.value.flops|tostring] | join(",")'); do
+  printf "%20s %12f %17f %14f %5f\n" $(echo $line | sed 's/,/ /g')
+done
