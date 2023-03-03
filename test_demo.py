@@ -16,11 +16,12 @@ def select_model(args, device):
     model_id = args.model_id
     if model_id == -2:
         # RFDN half precision
-        from models.rfdn_half.RFDN import RFDN
+        from models.rfdn_half.RFDN import RFDN, make_half
         name, data_range = f"{model_id:02}_RFDN_half", 255.0
         model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
         model = RFDN()
         model.load_state_dict(torch.load(model_path), strict=True)
+        model = make_half(model)
     elif model_id == -1:
         # IMDN baseline
         name, data_range = f"{model_id:02}_IMDN_baseline", 1.0
@@ -160,7 +161,7 @@ def select_model(args, device):
         name, data_range = f"{model_id:02}_RFDNFINALB5", 1.0
         model_path = os.path.join('model_zoo', 'team18_bsrn.pth')
         model = BSRN(num_in_ch=3, num_feat=48, num_block=5, num_out_ch=3, upscale=4,
-                            conv='BSConvU', upsampler='pixelshuffledirect')
+                     conv='BSConvU', upsampler='pixelshuffledirect')
         model.load_state_dict(torch.load(model_path)["params"], strict=True)
     elif model_id == 19:
         # Aselsan Research Team
@@ -269,7 +270,7 @@ def select_model(args, device):
         from models.team34_esan import make_model
         name, data_range = f"{model_id:02}_ESAN", 255.0
         model_path = os.path.join('model_zoo', 'team34_esan.pt')
-        model = make_model(1) #.to(torch.device('cuda'))
+        model = make_model(1)  # .to(torch.device('cuda'))
         model.load_state_dict(torch.load(model_path), strict=True)
     elif model_id == 35:
         # Set5baby Team
@@ -380,26 +381,25 @@ def forward(img_lq, model, tile=None, tile_overlap=32, scale=4):
         sf = scale
 
         stride = tile - tile_overlap
-        h_idx_list = list(range(0, h-tile, stride)) + [h-tile]
-        w_idx_list = list(range(0, w-tile, stride)) + [w-tile]
-        E = torch.zeros(b, c, h*sf, w*sf).type_as(img_lq)
+        h_idx_list = list(range(0, h - tile, stride)) + [h - tile]
+        w_idx_list = list(range(0, w - tile, stride)) + [w - tile]
+        E = torch.zeros(b, c, h * sf, w * sf).type_as(img_lq)
         W = torch.zeros_like(E)
 
         for h_idx in h_idx_list:
             for w_idx in w_idx_list:
-                in_patch = img_lq[..., h_idx:h_idx+tile, w_idx:w_idx+tile]
+                in_patch = img_lq[..., h_idx:h_idx + tile, w_idx:w_idx + tile]
                 out_patch = model(in_patch)
                 out_patch_mask = torch.ones_like(out_patch)
 
-                E[..., h_idx*sf:(h_idx+tile)*sf, w_idx*sf:(w_idx+tile)*sf].add_(out_patch)
-                W[..., h_idx*sf:(h_idx+tile)*sf, w_idx*sf:(w_idx+tile)*sf].add_(out_patch_mask)
+                E[..., h_idx * sf:(h_idx + tile) * sf, w_idx * sf:(w_idx + tile) * sf].add_(out_patch)
+                W[..., h_idx * sf:(h_idx + tile) * sf, w_idx * sf:(w_idx + tile) * sf].add_(out_patch_mask)
         output = E.div_(W)
 
     return output
 
 
 def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
-
     sf = 4
     border = sf
     results = dict()
@@ -469,23 +469,23 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
         #     results[f"{mode}_psnr_y"].append(psnr_y)
         #     results[f"{mode}_ssim_y"].append(ssim_y)
 
-        util.imsave(img_sr, os.path.join(save_path, img_name[:4]+ext))
+        util.imsave(img_sr, os.path.join(save_path, img_name[:4] + ext))
 
     results[f"{mode}_memory"] = torch.cuda.max_memory_allocated(torch.cuda.current_device()) / 1024 ** 2
-    results[f"{mode}_ave_runtime"] = sum(results[f"{mode}_runtime"]) / len(results[f"{mode}_runtime"]) #/ 1000.0
+    results[f"{mode}_ave_runtime"] = sum(results[f"{mode}_runtime"]) / len(results[f"{mode}_runtime"])  # / 1000.0
     results[f"{mode}_ave_psnr"] = sum(results[f"{mode}_psnr"]) / len(results[f"{mode}_psnr"])
     if args.ssim:
         results[f"{mode}_ave_ssim"] = sum(results[f"{mode}_ssim"]) / len(results[f"{mode}_ssim"])
     # results[f"{mode}_ave_psnr_y"] = sum(results[f"{mode}_psnr_y"]) / len(results[f"{mode}_psnr_y"])
     # results[f"{mode}_ave_ssim_y"] = sum(results[f"{mode}_ssim_y"]) / len(results[f"{mode}_ssim_y"])
     logger.info("{:>16s} : {:<.3f} [M]".format("Max Memery", results[f"{mode}_memory"]))  # Memery
-    logger.info("------> Average runtime of ({}) is : {:.6f} seconds".format("test" if mode == "test" else "valid", results[f"{mode}_ave_runtime"]))
+    logger.info("------> Average runtime of ({}) is : {:.6f} seconds".format("test" if mode == "test" else "valid",
+                                                                             results[f"{mode}_ave_runtime"]))
 
     return results
 
 
 def main(args):
-
     utils_logger.logger_info("NTIRE2022-EfficientSR", log_path="NTIRE2022-EfficientSR.log")
     logger = logging.getLogger("NTIRE2022-EfficientSR")
 
@@ -528,18 +528,19 @@ def main(args):
 
         input_dim = (3, 256, 256)  # set the input dimension
         activations, num_conv = get_model_activation(model, input_dim)
-        activations = activations/10**6
+        activations = activations / 10 ** 6
         logger.info("{:>16s} : {:<.4f} [M]".format("#Activations", activations))
         logger.info("{:>16s} : {:<d}".format("#Conv2d", num_conv))
 
         flops = get_model_flops(model, input_dim, False)
-        flops = flops/10**9
+        flops = flops / 10 ** 9
         logger.info("{:>16s} : {:<.4f} [G]".format("FLOPs", flops))
 
         num_parameters = sum(map(lambda x: x.numel(), model.parameters()))
-        num_parameters = num_parameters/10**6
+        num_parameters = num_parameters / 10 ** 6
         logger.info("{:>16s} : {:<.4f} [M]".format("#Params", num_parameters))
-        results[model_name].update({"activations": activations, "num_conv": num_conv, "flops": flops, "num_parameters": num_parameters})
+        results[model_name].update(
+            {"activations": activations, "num_conv": num_conv, "flops": flops, "num_parameters": num_parameters})
 
         with open(json_dir, "w") as f:
             json.dump(results, f)

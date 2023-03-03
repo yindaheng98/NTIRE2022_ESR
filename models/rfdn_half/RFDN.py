@@ -42,3 +42,17 @@ class RFDN(nn.Module):
 
     def set_scale(self, scale_idx):
         self.scale_idx = scale_idx
+
+
+class RFDN_half(nn.Module):
+    def __init__(self, model: RFDN):
+        super(RFDN_half, self).__init__()
+        self.rfdn = model.half()
+
+    def forward(self, input):
+        dtype = input.dtype
+        return self.rfdn(input.half()).to(dtype)
+
+
+def make_half(model: RFDN):
+    return RFDN_half(model)
