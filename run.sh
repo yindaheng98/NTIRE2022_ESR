@@ -10,3 +10,4 @@ CUDA_VISIBLE_DEVICES=0 python test_demo.py \
   --hr_dir /home/data/dataset/DIV2K/DIV2K_valid_HR \
   --save_dir "$ROOT/results" \
   --model_id -1
+cat results.json | jq
