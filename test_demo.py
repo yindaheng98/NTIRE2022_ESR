@@ -14,7 +14,14 @@ def select_model(args, device):
     # Model ID is assigned according to the order of the submissions.
     # Different networks are trained with input range of either [0,1] or [0,255]. The range is determined manually.
     model_id = args.model_id
-    if model_id == -1:
+    if model_id == -2:
+        # RFDN half precision
+        from models.rfdn_half.RFDN import RFDN
+        name, data_range = f"{model_id:02}_RFDN_half", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDN()
+        model.load_state_dict(torch.load(model_path), strict=True)
+    elif model_id == -1:
         # IMDN baseline
         name, data_range = f"{model_id:02}_IMDN_baseline", 1.0
         from models.imdn_baseline import IMDN
