@@ -5,7 +5,7 @@ import argparse
 import json
 
 from pprint import pprint
-from utils.model_summary import get_model_activation, get_model_flops
+from utils.model_summary import get_model_activation, get_model_flops, export_onnx
 from utils import utils_logger
 from utils import utils_image as util
 
@@ -531,6 +531,8 @@ def main(args):
         activations = activations / 10 ** 6
         logger.info("{:>16s} : {:<.4f} [M]".format("#Activations", activations))
         logger.info("{:>16s} : {:<d}".format("#Conv2d", num_conv))
+        if args.onnx:
+            export_onnx(model, input_dim, args.onnx)
 
         flops = get_model_flops(model, input_dim, False)
         flops = flops / 10 ** 9
@@ -579,6 +581,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_id", default=0, type=int)
     parser.add_argument("--include_test", action="store_true", help="Inference on the DIV2K test set")
     parser.add_argument("--ssim", action="store_true", help="Calculate SSIM")
+    parser.add_argument("--onnx", default=None, type=str, help="Save to onnx")
 
     args = parser.parse_args()
     pprint(args)

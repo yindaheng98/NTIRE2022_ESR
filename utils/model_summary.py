@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+import torch.onnx
 import numpy as np
 
 '''
@@ -63,6 +64,12 @@ def get_model_activation(model, input_res, input_constructor=None):
 
     return activation_count, num_conv
 
+def export_onnx(model, input_res, path):
+    assert type(input_res) is tuple, 'Please provide the size of the input image.'
+    assert len(input_res) >= 3, 'Input image should have 3 dimensions.'
+    device = list(model.parameters())[-1].device
+    batch = torch.FloatTensor(1, *input_res).to(device)
+    torch.onnx.export(model, batch, path)
 
 def get_model_complexity_info(model, input_res, print_per_layer_stat=True, as_strings=True,
                               input_constructor=None):
