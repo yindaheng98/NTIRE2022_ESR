@@ -7,15 +7,6 @@ import torch_pruning as tp
 
 from test_demo import select_model, select_dataset, util, get_model_activation, get_model_flops
 
-
-@torch.no_grad()
-def count_ops_and_params(model):
-    input_dim = (3, 256, 256)  # set the input dimension
-    activations, num_conv = get_model_activation(model, input_dim)
-    flops = get_model_flops(model, input_dim, False)
-    return activations, num_conv, flops
-
-
 prune_ignores = {
     0: lambda m: [m.upsampler[0]]
 }
@@ -41,6 +32,16 @@ def main(args):
     # --------------------------------
     input_dim = (3, 256, 256)
     example_inputs = torch.FloatTensor(1, *input_dim).to(device)
+    ignored_layers = prune_ignores[args.model_id](model) if args.model_id in prune_ignores else []
+
+    '''
+    from torchvision.models import resnet18 as entry
+    model = entry(pretrained=True)
+    print(model)
+    # Global metrics
+    example_inputs = torch.randn(1, 3, 224, 224)
+    ignored_layers = [model.fc]
+    '''
 
     # --------------------------------
     # load pruner
@@ -52,7 +53,7 @@ def main(args):
         importance=imp,
         iterative_steps=len(data_path),  # progressive pruning
         ch_sparsity=0.5,  # remove 50% channels, ResNet18 = {64, 128, 256, 512} => ResNet18_Half = {32, 64, 128, 256}
-        ignored_layers=prune_ignores[args.model_id](model) if args.model_id in prune_ignores else [],
+        ignored_layers=ignored_layers,
     )
 
     # --------------------------------
@@ -62,7 +63,6 @@ def main(args):
     for i, (img_lr, img_hr) in enumerate(data_path):
         pruner.step()
         macs, nparams = tp.utils.count_ops_and_params(model, example_inputs)
-        print(model)
         print(model(example_inputs).shape)
         print(
             "  Iter %d/%d, Params: %.2f M => %.2f M"
