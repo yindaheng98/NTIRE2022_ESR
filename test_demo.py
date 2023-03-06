@@ -341,14 +341,14 @@ def _select_model(args, device):
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
 
-    return model, model_id, name, data_range
+    tile = 256 if model_id == 2 else None
+    return model, name, data_range, tile
 
 
 def select_model(args, device):
-    model, model_id, name, data_range = _select_model(args, device)
+    model, name, data_range, tile = _select_model(args, device)
     # print(model)
     model.eval()
-    tile = 256 if model_id == 2 else None
     for k, v in model.named_parameters():
         v.requires_grad = False
     model = model.to(device)
@@ -464,7 +464,7 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
             ssim = util.calculate_ssim(img_sr, img_hr, border=border)
             results[f"{mode}_ssim"].append(ssim)
         #    logger.info("{:s} - PSNR: {:.2f} dB; SSIM: {:.4f}.".format(img_name + ext, psnr, ssim))
-        #else:
+        # else:
         #    logger.info("{:s} - PSNR: {:.2f} dB".format(img_name + ext, psnr))
 
         # if np.ndim(img_hr) == 3:  # RGB image

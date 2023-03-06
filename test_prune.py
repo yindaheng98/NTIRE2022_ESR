@@ -17,7 +17,7 @@ def main(args):
     # load model
     # --------------------------------
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model, _, model_name, _ = _select_model(args, device)
+    model, model_name, data_range, tile = _select_model(args, device)
     model = model.to(device)
 
     # --------------------------------
@@ -47,12 +47,13 @@ def main(args):
     # --------------------------------
     # load pruner
     # --------------------------------
+    iterative_steps = 16
     imp = tp.importance.MagnitudeImportance(p=2)
     pruner = tp.pruner.MagnitudePruner(
         model,
         example_inputs,
         importance=imp,
-        iterative_steps=len(data_path),  # progressive pruning
+        iterative_steps=iterative_steps,  # progressive pruning
         ch_sparsity=0.5,  # remove 50% channels, ResNet18 = {64, 128, 256, 512} => ResNet18_Half = {32, 64, 128, 256}
         ignored_layers=ignored_layers,
     )
