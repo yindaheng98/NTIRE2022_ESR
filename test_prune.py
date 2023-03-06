@@ -1,12 +1,13 @@
 import argparse
-import os
+import logging
 from pprint import pprint
 
 import torch
 import torch_pruning as tp
 
-from test_demo import _select_model, select_dataset, util
+from test_demo import _select_model, run
 
+logger = logging.getLogger("NTIRE2022-EfficientSR")
 prune_ignores = {
     0: lambda m: [m.upsampler[0]]
 }
@@ -19,14 +20,6 @@ def main(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model, model_name, data_range, tile = _select_model(args, device)
     model = model.to(device)
-
-    # --------------------------------
-    # dataset path
-    # --------------------------------
-    mode = "valid"
-    data_path = select_dataset(args.lr_dir, args.hr_dir, mode)
-    save_path = os.path.join(args.save_dir, model_name, mode)
-    util.mkdir(save_path)
 
     # --------------------------------
     # load example inputs
@@ -62,21 +55,29 @@ def main(args):
     # pruning
     # --------------------------------
     base_macs, base_nparams = tp.utils.count_ops_and_params(model, example_inputs)
-    for i, (img_lr, img_hr) in enumerate(data_path):
+    for i in range(iterative_steps):
         pruner.step()
         macs, nparams = tp.utils.count_ops_and_params(model, example_inputs)
         print(model(example_inputs).shape)
         print(
             "  Iter %d/%d, Params: %.2f M => %.2f M"
-            % (i + 1, len(data_path), base_nparams / 1e6, nparams / 1e6)
+            % (i + 1, iterative_steps, base_nparams / 1e6, nparams / 1e6)
         )
         print(
             "  Iter %d/%d, MACs: %.2f G => %.2f G"
-            % (i + 1, len(data_path), base_macs / 1e9, macs / 1e9)
+            % (i + 1, iterative_steps, base_macs / 1e9, macs / 1e9)
         )
         # finetune your model here
         # finetune(model)
         # ...
+        # Test in valid set
+        with torch.no_grad():
+            results = run(model, model_name, data_range, tile, logger, device, args, mode="valid")
+            print(
+                'valid_memory', results['valid_memory'],
+                'valid_ave_runtime', results['valid_ave_runtime'],
+                'valid_ave_psnr', results['valid_ave_psnr']
+            )
 
 
 if __name__ == "__main__":
