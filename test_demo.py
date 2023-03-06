@@ -11,7 +11,7 @@ from utils import utils_logger
 from utils import utils_image as util
 
 
-def select_model(args, device):
+def _select_model(args, device):
     # Model ID is assigned according to the order of the submissions.
     # Different networks are trained with input range of either [0,1] or [0,255]. The range is determined manually.
     model_id = args.model_id
@@ -341,6 +341,11 @@ def select_model(args, device):
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
 
+    return model, model_id, name, data_range
+
+
+def select_model(args, device):
+    model, model_id, name, data_range = _select_model(args, device)
     # print(model)
     model.eval()
     tile = 256 if model_id == 2 else None

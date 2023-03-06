@@ -5,7 +5,7 @@ from pprint import pprint
 import torch
 import torch_pruning as tp
 
-from test_demo import select_model, select_dataset, util, get_model_activation, get_model_flops
+from test_demo import _select_model, select_dataset, util
 
 prune_ignores = {
     0: lambda m: [m.upsampler[0]]
@@ -17,7 +17,8 @@ def main(args):
     # load model
     # --------------------------------
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model, model_name, data_range, tile = select_model(args, device)
+    model, _, model_name, _ = _select_model(args, device)
+    model = model.to(device)
 
     # --------------------------------
     # dataset path
