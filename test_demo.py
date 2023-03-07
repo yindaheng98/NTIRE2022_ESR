@@ -15,6 +15,7 @@ def _select_model(args, device):
     # Model ID is assigned according to the order of the submissions.
     # Different networks are trained with input range of either [0,1] or [0,255]. The range is determined manually.
     model_id = args.model_id
+    tile = None
     if model_id == 0:
         # RFDN baseline, AIM 2020 Efficient SR Challenge winner
         from models.rfdn_baseline.RFDN import RFDN
@@ -22,6 +23,14 @@ def _select_model(args, device):
         model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
         model = RFDN()
         model.load_state_dict(torch.load(model_path), strict=True)
+    elif model_id == -7:
+        # RFDN half precision
+        from models.rfdn_half.RFDNM import RFDNM
+        name, data_range = f"{model_id:02}_RFDNM", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNM()
+        model.load_state_dict(torch.load(model_path), strict=False)
+        tile = 256
     elif model_id == -6:
         # RFDN half precision
         from models.rfdn_half.RFDNB4S import RFDNB4S
@@ -79,6 +88,7 @@ def _select_model(args, device):
         model_path = os.path.join('model_zoo', 'team02_nlffc.pth')
         model = Netw()
         model.load_state_dict(torch.load(model_path), strict=True)
+        tile = 256
     elif model_id == 3:
         # NJU_Jet Team
         from models.team03_fmen import FMEN
@@ -369,7 +379,6 @@ def _select_model(args, device):
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
 
-    tile = 256 if model_id == 2 else None
     return model, name, data_range, tile
 
 
