@@ -15,7 +15,42 @@ def _select_model(args, device):
     # Model ID is assigned according to the order of the submissions.
     # Different networks are trained with input range of either [0,1] or [0,255]. The range is determined manually.
     model_id = args.model_id
-    if model_id == -2:
+    if model_id == 0:
+        # RFDN baseline, AIM 2020 Efficient SR Challenge winner
+        from models.rfdn_baseline.RFDN import RFDN
+        name, data_range = f"{model_id:02}_RFDN_baseline", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDN()
+        model.load_state_dict(torch.load(model_path), strict=True)
+    elif model_id == -6:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB4S import RFDNB4S
+        name, data_range = f"{model_id:02}_RFDN_B4S", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB4S()
+        model.load_state_dict(torch.load(model_path), strict=False)
+    elif model_id == -5:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB2S import RFDNB2S
+        name, data_range = f"{model_id:02}_RFDN_B2S", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB2S()
+        model.load_state_dict(torch.load(model_path), strict=False)
+    elif model_id == -4:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB4 import RFDNB4
+        name, data_range = f"{model_id:02}_RFDN_B4", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB4()
+        model.load_state_dict(torch.load(model_path), strict=False)
+    elif model_id == -3:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB2 import RFDNB2
+        name, data_range = f"{model_id:02}_RFDN_B2", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB2()
+        model.load_state_dict(torch.load(model_path), strict=False)
+    elif model_id == -2:
         # RFDN half precision
         from models.rfdn_half.RFDN import RFDN, make_half
         name, data_range = f"{model_id:02}_RFDN_half", 255.0
@@ -29,13 +64,6 @@ def _select_model(args, device):
         from models.imdn_baseline import IMDN
         model_path = os.path.join("model_zoo", "imdn_baseline.pth")
         model = IMDN(in_nc=3, out_nc=3, nc=64, nb=8, upscale=4)
-        model.load_state_dict(torch.load(model_path), strict=True)
-    elif model_id == 0:
-        # RFDN baseline, AIM 2020 Efficient SR Challenge winner
-        from models.rfdn_baseline.RFDN import RFDN
-        name, data_range = f"{model_id:02}_RFDN_baseline", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
-        model = RFDN()
         model.load_state_dict(torch.load(model_path), strict=True)
     elif model_id == 1:
         # NKU-ESR Team
