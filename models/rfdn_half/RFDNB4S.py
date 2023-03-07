@@ -14,9 +14,9 @@ class RFDNB4S(RFDNB4):
     def forward(self, input):
         out_fea = self.fea_conv(input)
         out_B1 = self.B1(out_fea)
-        out_B2 = self.B2(out_B1)
-        out_B3 = self.B3(out_B2)
-        out_B4 = self.B4(out_B3)
+        out_B2 = self.B2(self.B2S1(self.fea_conv1(input)))
+        out_B3 = self.B3(self.B2S2(self.fea_conv2(input)))
+        out_B4 = self.B4(self.B2S3(self.fea_conv3(input)))
 
         out_B = self.c(torch.cat([out_B1, out_B2, out_B3, out_B4], dim=1))
         out_lr = self.LR_conv(out_B) + out_fea

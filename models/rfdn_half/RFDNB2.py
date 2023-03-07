@@ -13,7 +13,7 @@ class RFDNB2(RFDN):
         out_fea = self.fea_conv(input)
         out_B1 = self.B1(out_fea)
         out_B2 = self.B2(out_B1)
-        out_B3 = self.B3(out_B2)
+        out_B3 = self.B3(self.fea_conv2(input))
         out_B4 = self.B4(out_B3)
 
         out_B = self.c(torch.cat([out_B1, out_B2, out_B3, out_B4], dim=1))
