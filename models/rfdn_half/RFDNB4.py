@@ -3,6 +3,7 @@ import torch.nn as nn
 
 import models.rfdn_baseline.block as B
 from .RFDNB2 import RFDNB2
+from .block import RFDB_P
 
 
 class RFDNB4(RFDNB2):
@@ -32,7 +33,7 @@ class RFDNB4_P(nn.Module):
 
         self.fea_conv1234 = B.conv_layer(in_nc, nf * 4, kernel_size=3)
 
-        self.B1234 = B.RFDB(in_channels=nf * 4)
+        self.B1234 = RFDB_P([model.B1, model.B2, model.B3, model.B4], in_channels=nf)
         self.c = B.conv_block(nf * num_modules, nf, kernel_size=1, act_type='lrelu')
 
         self.LR_conv = B.conv_layer(nf, nf, kernel_size=3)
