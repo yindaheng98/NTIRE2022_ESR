@@ -83,3 +83,32 @@ class RFDB_P(B.RFDB):
         self.act = activation('lrelu', neg_slope=0.05)
         self.c5 = conv_layer_p([m.c5 for m in models], self.dc * 4, in_channels, 1)
         self.esa = ESA_P([m.esa for m in models], in_channels, conv_p)
+        self.n = len(models)
+
+    def forward(self, input):
+        distilled_c1 = self.act(self.c1_d(input))
+        r_c1 = (self.c1_r(input))
+        r_c1 = self.act(r_c1 + input)
+
+        distilled_c2 = self.act(self.c2_d(r_c1))
+        r_c2 = (self.c2_r(r_c1))
+        r_c2 = self.act(r_c2 + r_c1)
+
+        distilled_c3 = self.act(self.c3_d(r_c2))
+        r_c3 = (self.c3_r(r_c2))
+        r_c3 = self.act(r_c3 + r_c2)
+
+        r_c4 = self.act(self.c4(r_c3))
+
+        out = torch.cat([
+            torch.cat([
+                distilled_c1[:, i * distilled_c1.shape[1] // self.n:(i + 1) * distilled_c1.shape[1] // self.n, ...],
+                distilled_c2[:, i * distilled_c2.shape[1] // self.n:(i + 1) * distilled_c2.shape[1] // self.n, ...],
+                distilled_c3[:, i * distilled_c3.shape[1] // self.n:(i + 1) * distilled_c3.shape[1] // self.n, ...],
+                r_c4[:, i * r_c4.shape[1] // self.n:(i + 1) * r_c4.shape[1] // self.n, ...],
+            ], dim=1)
+            for i in range(self.n)
+        ], dim=1)
+        out_fused = self.esa(self.c5(out))
+
+        return out_fused

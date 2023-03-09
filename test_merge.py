@@ -1,19 +1,18 @@
 import random
 
 import torch
-import torch.nn as nn
 
-from models.rfdn_baseline.block import ESA
-from models.rfdn_half.block import ESA_P, conv_p
+from models.rfdn_baseline.block import RFDB
+from models.rfdn_half.block import RFDB_P
 
 
 def main():
     in_channels = random.randint(4, 10)
     convs = [
-        ESA(n_feats=in_channels, conv=nn.Conv2d)
+        RFDB(in_channels=in_channels)
         for _ in range(random.randint(4, 10))
     ]
-    conv = ESA_P(convs, n_feats=in_channels, conv=conv_p)
+    conv = RFDB_P(convs, in_channels=in_channels)
     batch = random.randint(4, 10)
     inputs = [torch.randn(batch, in_channels, 224, 224) for i in range(len(convs))]
     conv_output = torch.cat([c(i) for c, i in zip(convs, inputs)], dim=1)
