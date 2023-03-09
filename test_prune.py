@@ -9,7 +9,12 @@ from test_demo import _select_model, run
 
 logger = logging.getLogger("NTIRE2022-EfficientSR")
 prune_ignores = {
-    0: lambda m: [m.upsampler[0]]
+    0: lambda m: [m.upsampler[0]],
+    -3: lambda m: [m.upsampler[0]],
+    -4: lambda m: [m.upsampler[0]],
+    -5: lambda m: [m.upsampler[0]],
+    -6: lambda m: [m.upsampler[0]],
+    -7: lambda m: [m.upsampler[0], m.up_conv1[0], m.up_conv2[0], m.up_conv3[0]],
 }
 
 
