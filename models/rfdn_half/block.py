@@ -70,7 +70,7 @@ class ESA_P(ESA):
 
 class RFDB_P(B.RFDB):
     def __init__(self, models: list[B.RFDB], in_channels, distillation_rate=0.25):
-        super(RFDB_P, self).__init__(in_channels * len(models), distillation_rate=0.25)
+        super(RFDB_P, self).__init__(in_channels * len(models), distillation_rate=distillation_rate)
         self.dc = self.distilled_channels = in_channels // 2
         self.rc = self.remaining_channels = in_channels
         self.c1_d = conv_layer_p([m.c1_d for m in models], in_channels, self.dc, 1)

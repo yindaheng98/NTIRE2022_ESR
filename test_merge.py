@@ -20,7 +20,7 @@ def main():
     print(conv_output.shape)
     convs_output = conv(torch.cat(inputs, dim=1))
     print(convs_output.shape)
-    print(torch.sum(conv_output - convs_output))
+    print(torch.sum(torch.abs(conv_output - convs_output)))
 
 
 if __name__ == "__main__":
