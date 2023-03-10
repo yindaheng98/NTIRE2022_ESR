@@ -114,3 +114,29 @@ class RFDB_P(B.RFDB):
         out_fused = self.esa(self.c5(out))
 
         return out_fused
+
+
+class RFDBS_P(nn.Module):
+    def __init__(self, models: list[RFDBS], in_channels, distillation_rate=0.25):
+        super(RFDBS_P, self).__init__()
+        self.dc = self.distilled_channels = in_channels // 2
+        self.rc = self.remaining_channels = in_channels
+        self.c1_d = conv_layer_p([m.c1_d for m in models], in_channels, self.dc, 1)
+        self.c1_r = conv_layer_p([m.c1_r for m in models], in_channels, self.rc, 3)
+        self.c4 = conv_layer_p([m.c4 for m in models], self.remaining_channels, self.dc, 3)
+        self.act = activation('lrelu', neg_slope=0.05)
+        self.c5 = conv_layer_p([m.c5 for m in models], self.dc * 2, in_channels, 1)
+        self.esa = ESA_P([m.esa for m in models], in_channels, conv_p)
+        self.n = len(models)
+
+    def forward(self, input):
+        distilled_c1 = self.act(self.c1_d(input))
+        r_c1 = (self.c1_r(input))
+        r_c1 = self.act(r_c1 + input)
+
+        r_c4 = self.act(self.c4(r_c1))
+
+        out = cat_p(self.n, distilled_c1, r_c4)
+        out_fused = self.esa(self.c5(out))
+
+        return out_fused
