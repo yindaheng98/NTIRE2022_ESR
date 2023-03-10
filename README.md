@@ -1,3 +1,18 @@
+# 说明
+
+系统中模型很多。
+`models`文件夹中每一个文件或子文件夹都是一个模型，`model_zoo`中是这些模型的参数。
+`test_demo.py`用于测试模型；`test_prune.py`用于裁剪模型。
+具体的使用方法可以看`run.sh`、`run_all.sh`、`run_prune.sh`这三个文件。
+
+每个模型都有一个固定的编号，`test_demo.py`和`test_prune.py`都有参数`--model_id`用于指定模型。
+
+## 我们的东西
+
+我们所添加的模型及相关变体都在`models/rfdn_half`文件夹下。
+此外，相关模型编号也添加进了`test_demo.py`中。
+我们还编写了`test_prune.py`用于裁剪模型。
+
 # [NTIRE 2022 Challenge on Efficient Super-Resolution](https://data.vision.ee.ethz.ch/cvl/ntire22/) @ [CVPR 2022](https://cvpr2022.thecvf.com/)
 
 ## About the Challenge
