@@ -68,6 +68,16 @@ class ESA_P(ESA):
         self.relu = nn.ReLU(inplace=True)
 
 
+def cat_p(n, *args: torch.Tensor):
+    return torch.cat([
+        torch.cat([
+            arg[:, i * arg.shape[1] // n:(i + 1) * arg.shape[1] // n, ...]
+            for arg in args
+        ], dim=1)
+        for i in range(n)
+    ], dim=1)
+
+
 class RFDB_P(B.RFDB):
     def __init__(self, models: list[B.RFDB], in_channels, distillation_rate=0.25):
         super(RFDB_P, self).__init__(in_channels * len(models), distillation_rate=distillation_rate)
@@ -100,15 +110,7 @@ class RFDB_P(B.RFDB):
 
         r_c4 = self.act(self.c4(r_c3))
 
-        out = torch.cat([
-            torch.cat([
-                distilled_c1[:, i * distilled_c1.shape[1] // self.n:(i + 1) * distilled_c1.shape[1] // self.n, ...],
-                distilled_c2[:, i * distilled_c2.shape[1] // self.n:(i + 1) * distilled_c2.shape[1] // self.n, ...],
-                distilled_c3[:, i * distilled_c3.shape[1] // self.n:(i + 1) * distilled_c3.shape[1] // self.n, ...],
-                r_c4[:, i * r_c4.shape[1] // self.n:(i + 1) * r_c4.shape[1] // self.n, ...],
-            ], dim=1)
-            for i in range(self.n)
-        ], dim=1)
+        out = cat_p(self.n, distilled_c1, distilled_c2, distilled_c3, r_c4)
         out_fused = self.esa(self.c5(out))
 
         return out_fused
