@@ -411,6 +411,10 @@ def _select_model(args, device):
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
 
+    if args.model_path:
+        model = torch.load(args.model_path)
+        name += args.model_path
+
     return model, name, data_range, tile
 
 
@@ -653,7 +657,8 @@ if __name__ == "__main__":
     parser.add_argument("--lr_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge", type=str)
     parser.add_argument("--hr_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge", type=str)
     parser.add_argument("--save_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge/results", type=str)
-    parser.add_argument("--model_id", default=0, type=int)
+    parser.add_argument("--model_id", default=None, type=int)
+    parser.add_argument("--model_path", default=None, type=str)
     parser.add_argument("--include_test", action="store_true", help="Inference on the DIV2K test set")
     parser.add_argument("--ssim", action="store_true", help="Calculate SSIM")
     parser.add_argument("--onnx", default=None, type=str, help="Save to onnx")
