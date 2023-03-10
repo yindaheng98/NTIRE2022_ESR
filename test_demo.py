@@ -23,6 +23,38 @@ def _select_model(args, device):
         model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
         model = RFDN()
         model.load_state_dict(torch.load(model_path), strict=True)
+    elif model_id == -11:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB4S import RFDNB4S, RFDNB4S_P
+        name, data_range = f"{model_id:02}_RFDN_B4S_P", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB4S()
+        model.load_state_dict(torch.load(model_path), strict=False)
+        model = RFDNB4S_P(model)
+    elif model_id == -10:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB2S import RFDNB2S, RFDNB2S_P
+        name, data_range = f"{model_id:02}_RFDN_B2S_P", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB2S()
+        model.load_state_dict(torch.load(model_path), strict=False)
+        model = RFDNB2S_P(model)
+    elif model_id == -9:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB4 import RFDNB4, RFDNB4_P
+        name, data_range = f"{model_id:02}_RFDN_B4_P", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB4()
+        model.load_state_dict(torch.load(model_path), strict=False)
+        model = RFDNB4_P(model)
+    elif model_id == -8:
+        # RFDN half precision
+        from models.rfdn_half.RFDNB2 import RFDNB2, RFDNB2_P
+        name, data_range = f"{model_id:02}_RFDN_B2_P", 255.0
+        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model = RFDNB2()
+        model.load_state_dict(torch.load(model_path), strict=False)
+        model = RFDNB2_P(model)
     elif model_id == -7:
         # RFDN half precision
         from models.rfdn_half.RFDNM import RFDNM
