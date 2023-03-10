@@ -12,10 +12,12 @@ class RFDNB2(RFDN):
         self.fea_conv2 = B.conv_layer(in_nc, nf, kernel_size=3)
 
     def forward(self, input):
-        out_fea = self.fea_conv(input)
+        return self.tail(self.fea_conv(input), self.fea_conv2(input))
+
+    def tail(self, out_fea, out_fea2):
         out_B1 = self.B1(out_fea)
         out_B2 = self.B2(out_B1)
-        out_B3 = self.B3(self.fea_conv2(input))
+        out_B3 = self.B3(out_fea2)
         out_B4 = self.B4(out_B3)
 
         out_B = self.c(torch.cat([out_B1, out_B2, out_B3, out_B4], dim=1))
@@ -41,7 +43,9 @@ class RFDNB2_P(nn.Module):
         self.scale_idx = 0
 
     def forward(self, input):
-        out_fea12 = self.fea_conv12(torch.cat([input, input], dim=1))
+        return self.tail(self.fea_conv12(torch.cat([input, input], dim=1)))
+
+    def tail(self, out_fea12):
         out_B13 = self.B13(out_fea12)
         out_B24 = self.B24(out_B13)
 
