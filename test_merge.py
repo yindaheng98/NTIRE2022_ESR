@@ -2,23 +2,21 @@ import random
 
 import torch
 
-from models.rfdn_baseline.block import RFDB
-from models.rfdn_half.block import RFDB_P
+# from models.rfdn_half.RFDNB2 import RFDNB2 as model, RFDNB2_P as model_p
+from models.rfdn_half.RFDNB4 import RFDNB4 as model, RFDNB4_P as model_p
 
 
 def main():
     in_channels = random.randint(4, 10)
-    convs = [
-        RFDB(in_channels=in_channels)
-        for _ in range(random.randint(4, 10))
-    ]
-    conv = RFDB_P(convs, in_channels=in_channels)
+    convs = model(in_nc=in_channels)
+    conv = model_p(convs, in_nc=in_channels)
     batch = random.randint(4, 10)
-    inputs = [torch.randn(batch, in_channels, 224, 224) for i in range(len(convs))]
-    conv_output = torch.cat([c(i) for c, i in zip(convs, inputs)], dim=1)
+    inp = torch.randn(batch, in_channels, 224, 224)
+    conv_output = conv(inp)
     print(conv_output.shape)
-    convs_output = conv(torch.cat(inputs, dim=1))
+    convs_output = convs(inp)
     print(convs_output.shape)
+    print(conv_output - convs_output)
     print(torch.sum(torch.abs(conv_output - convs_output)))
 
 

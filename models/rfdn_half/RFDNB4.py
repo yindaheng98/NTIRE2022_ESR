@@ -3,7 +3,7 @@ import torch.nn as nn
 
 import models.rfdn_baseline.block as B
 from .RFDNB2 import RFDNB2
-from .block import RFDB_P
+from .block import RFDB_P, conv_layer_p
 
 
 class RFDNB4(RFDNB2):
@@ -28,22 +28,20 @@ class RFDNB4(RFDNB2):
 
 
 class RFDNB4_P(nn.Module):
-    def __init__(self, model: RFDNB4, in_nc=3, nf=50, num_modules=4, out_nc=3, upscale=4):
+    def __init__(self, model: RFDNB4, in_nc=3, nf=50):
         super().__init__()
 
-        self.fea_conv1234 = B.conv_layer(in_nc, nf * 4, kernel_size=3)
+        self.fea_conv1234 = conv_layer_p([model.fea_conv, model.fea_conv1, model.fea_conv2, model.fea_conv3],
+                                         in_nc, nf, kernel_size=3)
 
         self.B1234 = RFDB_P([model.B1, model.B2, model.B3, model.B4], in_channels=nf)
-        self.c = B.conv_block(nf * num_modules, nf, kernel_size=1, act_type='lrelu')
-
-        self.LR_conv = B.conv_layer(nf, nf, kernel_size=3)
-
-        upsample_block = B.pixelshuffle_block
-        self.upsampler = upsample_block(nf, out_nc, upscale_factor=4)
+        self.c = model.c
+        self.LR_conv = model.LR_conv
+        self.upsampler = model.upsampler
         self.scale_idx = 0
 
     def forward(self, input):
-        out_fea1234 = self.fea_conv1234(input)
+        out_fea1234 = self.fea_conv1234(torch.cat([input, input, input, input], dim=1))
         out_B1234 = self.B1234(out_fea1234)
 
         out_B = self.c(out_B1234)
