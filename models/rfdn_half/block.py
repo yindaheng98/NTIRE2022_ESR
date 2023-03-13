@@ -30,7 +30,7 @@ class RFDBS(nn.Module):
         return out_fused
 
 
-set0 = True
+set0 = False
 
 
 def conv_p(convs: list[nn.Conv2d], in_channels, out_channels, kernel_size, stride=1, padding=0, **kwargs):
