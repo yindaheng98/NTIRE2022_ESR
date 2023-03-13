@@ -23,5 +23,8 @@ class RFDNB4S_P(RFDNB4_P):
 
     def forward(self, input):
         out_fea1234 = self.fea_conv1234(torch.cat([input, input, input, input], dim=1))
-        out_fea1234[:, out_fea1234.shape[1] // 4:, ...] = self.B2S123(out_fea1234[:, out_fea1234.shape[1] // 4:, ...])
+        out_fea1234 = torch.cat([
+            out_fea1234[:, 0:out_fea1234.shape[1] // 4, ...],
+            self.B2S123(out_fea1234[:, out_fea1234.shape[1] // 4:, ...])
+        ], dim=1)
         return self.tail(out_fea1234)
