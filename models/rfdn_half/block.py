@@ -33,16 +33,13 @@ class RFDBS(nn.Module):
 def conv_p(convs: list[nn.Conv2d], in_channels, out_channels, kernel_size, stride=1, padding=0, **kwargs):
     conv = nn.Conv2d(in_channels * len(convs), out_channels * len(convs),
                      kernel_size, stride=stride, padding=padding, **kwargs)
-    conv.weight.requires_grad = False
-    for i in range(len(convs)):
-        convs[i].weight.requires_grad = False
-        for j in range(len(convs)):
-            conv.weight[j * out_channels:(j + 1) * out_channels, i * in_channels:(i + 1) * in_channels, ...] = \
-                convs[i].weight if j == i else torch.zeros(convs[i].weight.shape)
-    conv.bias.requires_grad = False
-    for i in range(len(convs)):
-        convs[i].bias.requires_grad = False
-        conv.bias[i * out_channels:(i + 1) * out_channels] = convs[i].bias
+    with torch.no_grad():
+        for i in range(len(convs)):
+            for j in range(len(convs)):
+                conv.weight[j * out_channels:(j + 1) * out_channels, i * in_channels:(i + 1) * in_channels, ...] = \
+                    convs[i].weight if j == i else torch.zeros(convs[i].weight.shape)
+        for i in range(len(convs)):
+            conv.bias[i * out_channels:(i + 1) * out_channels] = convs[i].bias
     return conv
 
 
