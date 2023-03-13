@@ -27,70 +27,70 @@ def _select_model(args, device):
         # RFDN half precision
         from models.rfdn_half.RFDNB4S import RFDNB4S, RFDNB4S_P
         name, data_range = f"{model_id:02}_RFDN_B4S_P", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFND_-6.pth')
         model = RFDNB4S()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB4S_P(model)
     elif model_id == -10:
         # RFDN half precision
         from models.rfdn_half.RFDNB2S import RFDNB2S, RFDNB2S_P
         name, data_range = f"{model_id:02}_RFDN_B2S_P", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-5.pth')
         model = RFDNB2S()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB2S_P(model)
     elif model_id == -9:
         # RFDN half precision
         from models.rfdn_half.RFDNB4 import RFDNB4, RFDNB4_P
         name, data_range = f"{model_id:02}_RFDN_B4_P", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-4.pth')
         model = RFDNB4()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB4_P(model)
     elif model_id == -8:
         # RFDN half precision
         from models.rfdn_half.RFDNB2 import RFDNB2, RFDNB2_P
         name, data_range = f"{model_id:02}_RFDN_B2_P", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-3.pth')
         model = RFDNB2()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB2_P(model)
     elif model_id == -7:
         # RFDN half precision
         from models.rfdn_half.RFDNM import RFDNM
         name, data_range = f"{model_id:02}_RFDNM", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-7.pth')
         model = RFDNM()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         tile = 256
     elif model_id == -6:
         # RFDN half precision
         from models.rfdn_half.RFDNB4S import RFDNB4S
         name, data_range = f"{model_id:02}_RFDN_B4S", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFND_-6.pth')
         model = RFDNB4S()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -5:
         # RFDN half precision
         from models.rfdn_half.RFDNB2S import RFDNB2S
         name, data_range = f"{model_id:02}_RFDN_B2S", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-5.pth')
         model = RFDNB2S()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -4:
         # RFDN half precision
         from models.rfdn_half.RFDNB4 import RFDNB4
         name, data_range = f"{model_id:02}_RFDN_B4", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-4.pth')
         model = RFDNB4()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -3:
         # RFDN half precision
         from models.rfdn_half.RFDNB2 import RFDNB2
         name, data_range = f"{model_id:02}_RFDN_B2", 255.0
-        model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
+        model_path = os.path.join('model_zoo', 'model_RFDN_-3.pth')
         model = RFDNB2()
-        model.load_state_dict(torch.load(model_path), strict=False)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -2:
         # RFDN half precision
         from models.rfdn_half.RFDN import RFDN, make_half
