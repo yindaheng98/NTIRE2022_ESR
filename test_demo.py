@@ -21,14 +21,14 @@ def _select_model(args, device):
         from models.rfdn_baseline.RFDN import RFDN
         name, data_range = f"{model_id:02}_RFDN_baseline", 255.0
         model_path = os.path.join('model_zoo', 'rfdn_baseline.pth')
-        model = RFDN()
+        model = RFDN(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path), strict=True)
     elif model_id == -11:
         # RFDN half precision
         from models.rfdn_half.RFDNB4S import RFDNB4S, RFDNB4S_P
         name, data_range = f"{model_id:02}_RFDN_B4S_P", 255.0
         model_path = os.path.join('model_zoo', 'model_RFND_-6.pth')
-        model = RFDNB4S()
+        model = RFDNB4S(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB4S_P(model)
     elif model_id == -10:
@@ -36,7 +36,7 @@ def _select_model(args, device):
         from models.rfdn_half.RFDNB2S import RFDNB2S, RFDNB2S_P
         name, data_range = f"{model_id:02}_RFDN_B2S_P", 255.0
         model_path = os.path.join('model_zoo', 'model_RFDN_-5.pth')
-        model = RFDNB2S()
+        model = RFDNB2S(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB2S_P(model)
     elif model_id == -9:
@@ -44,7 +44,7 @@ def _select_model(args, device):
         from models.rfdn_half.RFDNB4 import RFDNB4, RFDNB4_P
         name, data_range = f"{model_id:02}_RFDN_B4_P", 255.0
         model_path = os.path.join('model_zoo', 'model_RFDN_-4.pth')
-        model = RFDNB4()
+        model = RFDNB4(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB4_P(model)
     elif model_id == -8:
@@ -52,7 +52,7 @@ def _select_model(args, device):
         from models.rfdn_half.RFDNB2 import RFDNB2, RFDNB2_P
         name, data_range = f"{model_id:02}_RFDN_B2_P", 255.0
         model_path = os.path.join('model_zoo', 'model_RFDN_-3.pth')
-        model = RFDNB2()
+        model = RFDNB2(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB2_P(model)
     elif model_id == -7:
@@ -68,28 +68,28 @@ def _select_model(args, device):
         from models.rfdn_half.RFDNB4S import RFDNB4S
         name, data_range = f"{model_id:02}_RFDN_B4S", 255.0
         model_path = os.path.join('model_zoo', 'model_RFND_-6.pth')
-        model = RFDNB4S()
+        model = RFDNB4S(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -5:
         # RFDN half precision
         from models.rfdn_half.RFDNB2S import RFDNB2S
         name, data_range = f"{model_id:02}_RFDN_B2S", 255.0
         model_path = os.path.join('model_zoo', 'model_RFDN_-5.pth')
-        model = RFDNB2S()
+        model = RFDNB2S(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -4:
         # RFDN half precision
         from models.rfdn_half.RFDNB4 import RFDNB4
         name, data_range = f"{model_id:02}_RFDN_B4", 255.0
         model_path = os.path.join('model_zoo', 'model_RFDN_-4.pth')
-        model = RFDNB4()
+        model = RFDNB4(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -3:
         # RFDN half precision
         from models.rfdn_half.RFDNB2 import RFDNB2
         name, data_range = f"{model_id:02}_RFDN_B2", 255.0
         model_path = os.path.join('model_zoo', 'model_RFDN_-3.pth')
-        model = RFDNB2()
+        model = RFDNB2(upscale=args.upscale)
         model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
     elif model_id == -2:
         # RFDN half precision
@@ -660,6 +660,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_id", default=None, type=int)
     parser.add_argument("--model_path", default=None, type=str)
     parser.add_argument("--include_test", action="store_true", help="Inference on the DIV2K test set")
+    parser.add_argument("--upscale", default=4, type=int)
     parser.add_argument("--ssim", action="store_true", help="Calculate SSIM")
     parser.add_argument("--onnx", default=None, type=str, help="Save to onnx")
 
