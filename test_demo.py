@@ -29,6 +29,7 @@ def _select_model(args, device):
         name, data_range = f"{model_id:02}_RFDN_B4S_P", 255.0
         model_path = os.path.join('model_zoo', 'model_RFND_-6.pth')
         model = RFDNB4S(upscale=args.upscale)
+        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB4S_P(model)
     elif model_id == -10:
         # RFDN half precision
