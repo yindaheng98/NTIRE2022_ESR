@@ -29,7 +29,6 @@ def _select_model(args, device):
         name, data_range = f"{model_id:02}_RFDN_B4S_P", 255.0
         model_path = os.path.join('model_zoo', 'model_RFND_-6.pth')
         model = RFDNB4S(upscale=args.upscale)
-        model.load_state_dict(torch.load(model_path).state_dict(), strict=True)
         model = RFDNB4S_P(model)
     elif model_id == -10:
         # RFDN half precision
@@ -428,7 +427,7 @@ def select_model(args, device):
     return model, name, data_range, tile
 
 
-def select_dataset(lr_dir, hr_dir, mode):
+def select_dataset(lr_dir, hr_dir, mode, args):
     if mode == "test":
         path = [
             (
@@ -440,7 +439,7 @@ def select_dataset(lr_dir, hr_dir, mode):
     else:
         path = [
             (
-                os.path.join(lr_dir, f"{i:04}x4.png"),
+                os.path.join(lr_dir, f"{i:04}x{args.upscale}.png"),
                 os.path.join(hr_dir, f"{i:04}.png")
             ) for i in range(801, 901)
         ]
@@ -492,7 +491,7 @@ def run(model, model_name, data_range, tile, logger, device, args, mode="test"):
     # --------------------------------
     # dataset path
     # --------------------------------
-    data_path = select_dataset(args.lr_dir, args.hr_dir, mode)
+    data_path = select_dataset(args.lr_dir, args.hr_dir, mode, args)
     save_path = os.path.join(args.save_dir, model_name, "test" if mode == "test" else "valid")
     util.mkdir(save_path)
 
