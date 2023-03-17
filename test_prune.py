@@ -15,6 +15,10 @@ prune_ignores = {
     -5: lambda m: [m.upsampler[0]],
     -6: lambda m: [m.upsampler[0]],
     -7: lambda m: [m.upsampler[0], m.up_conv1[0], m.up_conv2[0], m.up_conv3[0]],
+    -8: lambda m: [m.upsampler[0]],
+    -9: lambda m: [m.upsampler[0]],
+    -10: lambda m: [m.upsampler[0]],
+    -11: lambda m: [m.upsampler[0]],
 }
 
 
@@ -91,7 +95,9 @@ if __name__ == "__main__":
     parser.add_argument("--hr_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge", type=str)
     parser.add_argument("--save_dir", default="/cluster/work/cvl/yawli/data/NTIRE2022_Challenge/results", type=str)
     parser.add_argument("--model_id", default=0, type=int)
+    parser.add_argument("--model_path", default=None, type=str)
     parser.add_argument("--include_test", action="store_true", help="Inference on the DIV2K test set")
+    parser.add_argument("--upscale", default=4, type=int)
     parser.add_argument("--ssim", action="store_true", help="Calculate SSIM")
     parser.add_argument("--onnx", default=None, type=str, help="Save to onnx")
 
