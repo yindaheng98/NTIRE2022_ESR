@@ -6,11 +6,12 @@ ROOT=$(dirname $0)
 
 rm -rf "$ROOT/results"
 mkdir -p "$ROOT/results"
-CUDA_VISIBLE_DEVICES=1 python test_demo.py \
+CUDA_VISIBLE_DEVICES=7 python test_demo.py \
   --lr_dir /home/data/dataset/DIV2K/DIV2K_valid_LR_bicubic/X4 \
   --hr_dir /home/data/dataset/DIV2K/DIV2K_valid_HR \
   --save_dir "$ROOT/results" \
-  --model_id -2
+  --model_id -11 \
+  --upscale 4
 
 printf "%20s %12s %17s %14s %5s\n" model_name valid_memory valid_ave_runtime valid_ave_psnr flops
 for line in $(cat results.json | jq -r 'to_entries|.[]|[.key,.value.valid_memory,.value.valid_ave_runtime,.value.valid_ave_psnr,.value.flops|tostring] | join(",")'); do
