@@ -2,8 +2,8 @@ import torch
 import torch.nn as nn
 
 import models.rfdn_baseline.block as B
-from models.rfdn_baseline.block import conv_layer, activation, ESA
-
+from models.rfdn_baseline.block import conv_layer, activation, ESA,get_valid_padding,pad,norm,sequential
+import math
 
 class RFDBS(nn.Module):
     def __init__(self, in_channels, distillation_rate=0.25):
@@ -55,6 +55,68 @@ def conv_layer_p(convs: list[nn.Conv2d], in_channels, out_channels, kernel_size,
     return conv_p(convs, in_channels, out_channels,
                   kernel_size, stride, padding=padding,
                   bias=True, dilation=dilation, groups=groups)
+
+def conv_layer_expand(conv,in_channels,out_channels,expand,kernel_size,flag=True,**kwargs):
+    in_exp = math.ceil(in_channels*expand[0])
+    out_exp= math.ceil(out_channels*expand[1])
+    if flag:
+        conv_exp = conv_layer(in_exp,out_exp,kernel_size=kernel_size,**kwargs)
+    else:
+        conv_exp=nn.Conv2d(in_channels=in_exp,out_channels=out_exp,kernel_size=kernel_size,**kwargs)
+    with torch.no_grad():
+        conv_exp.weight[:,:,...]=torch.zeros(conv_exp.weight.shape)
+        conv_exp.weight[0:out_channels,0:in_channels,...]=conv.weight
+        conv_exp.bias[:]=torch.zeros(conv_exp.bias.shape)
+        conv_exp.bias[0:out_channels]=conv.bias
+    return conv_exp
+
+# def conv_block_exp(in_nc, out_nc, kernel_size, stride=1, dilation=1, groups=1, bias=True,
+#                pad_type='zero', norm_type=None, act_type='relu'):
+#     padding = get_valid_padding(kernel_size, dilation)
+#     p = pad(pad_type, padding) if pad_type and pad_type != 'zero' else None
+#     padding = padding if pad_type == 'zero' else 0
+
+#     c = nn.Conv2d(in_nc, out_nc, kernel_size=kernel_size, stride=stride, padding=padding,
+#                   dilation=dilation, bias=bias, groups=groups)
+#     a = activation(act_type) if act_type else None
+#     n = norm(norm_type, out_nc) if norm_type else None
+#     return sequential(p, c, n, a)
+
+
+def conv_block_exp(in_nc, out_nc, kernel_size=1, stride=1, dilation=1, groups=1, bias=True,
+               pad_type='zero', norm_type=None, act_type='relu',model=None):
+    
+    padding = get_valid_padding(kernel_size, dilation)
+    p = pad(pad_type, padding) if pad_type and pad_type != 'zero' else None
+    padding = padding if pad_type == 'zero' else 0
+
+    c = conv_layer_expand(model[0],in_nc,out_nc,[2,2],kernel_size=kernel_size,stride=stride, padding=padding,
+                  dilation=dilation, bias=bias, groups=groups,flag=False)
+    
+    a = activation(act_type) if act_type else None
+    n = norm(norm_type, out_nc) if norm_type else None
+    return sequential(p, c, n, a)
+
+# upsample_block(nf, out_nc, upscale_factor=upscale,model=model.upsampler)
+
+def pixelshuffle_block_exp(in_channels, out_channels, upscale_factor=2, kernel_size=3, stride=1,model=None):
+    conv = conv_layer_expand(model[0],in_channels,out_channels* (upscale_factor ** 2),[2,1], kernel_size, stride)
+    pixel_shuffle = nn.PixelShuffle(upscale_factor)
+    return sequential(conv, pixel_shuffle)
+
+class ESA_EXP(ESA):
+    def __init__(self, n_feats,model:None):
+        super().__init__(n_feats,nn.Conv2d)
+        f = n_feats // 4
+        self.conv1 = conv_layer_expand(model.conv1,n_feats, f,[2,2],kernel_size=1,flag=False)
+        self.conv_f = conv_layer_expand(model.conv_f, f, f,[2,2],kernel_size=1,flag=False)
+        self.conv_max = conv_layer_expand(model.conv_max, f, f,[2,2],kernel_size=3, padding=1,flag=False)
+        self.conv2 = conv_layer_expand(model.conv2,f, f,[2,2],kernel_size=3, stride=2, padding=0,flag=False)
+        self.conv3 = conv_layer_expand(model.conv3, f, f,[2,2], kernel_size=3, padding=1,flag=False)
+        self.conv3_ = conv_layer_expand(model.conv3_, f, f,[2,2] ,kernel_size=3, padding=1,flag=False)
+        self.conv4 = conv_layer_expand(model.conv4, f, n_feats,[2,2], kernel_size=1,flag=False)
+        self.sigmoid = nn.Sigmoid()
+        self.relu = nn.ReLU(inplace=True)
 
 
 class ESA_P(ESA):
