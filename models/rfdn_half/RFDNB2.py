@@ -3,7 +3,7 @@ import torch.nn as nn
 
 import models.rfdn_baseline.block as B
 from .RFDN import RFDN
-from .block import RFDB_P, conv_layer_p
+from .block import RFDB_P, conv_layer_p, Conv2dCat
 
 
 class RFDNB2(RFDN):
@@ -37,6 +37,7 @@ class RFDNB2_P(nn.Module):
 
         self.B13 = RFDB_P([model.B1, model.B3], in_channels=nf)
         self.B24 = RFDB_P([model.B2, model.B4], in_channels=nf)
+        self.cat_p = Conv2dCat(n=2, in_channels=[nf * 2] * 2)
         self.c = model.c
         self.LR_conv = model.LR_conv
         self.upsampler = model.upsampler
@@ -49,12 +50,7 @@ class RFDNB2_P(nn.Module):
         out_B13 = self.B13(out_fea12)
         out_B24 = self.B24(out_B13)
 
-        out_B = self.c(torch.cat([
-            out_B13[:, 0:out_B13.shape[1] // 2],
-            out_B24[:, 0:out_B24.shape[1] // 2],
-            out_B13[:, out_B13.shape[1] // 2:],
-            out_B24[:, out_B24.shape[1] // 2:],
-        ], dim=1))
+        out_B = self.c(self.cat_p(out_B13, out_B24))
         out_lr = self.LR_conv(out_B) + out_fea12[:, 0:out_fea12.shape[1] // 2]
 
         output = self.upsampler(out_lr)
