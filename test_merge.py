@@ -3,9 +3,9 @@ import random
 import torch
 
 # from models.rfdn_half.RFDNB2 import RFDNB2 as model, RFDNB2_P as model_p
-from models.rfdn_half.RFDNB2S import RFDNB2S as model, RFDNB2S_P as model_p
+# from models.rfdn_half.RFDNB2S import RFDNB2S as model, RFDNB2S_P as model_p
 # from models.rfdn_half.RFDNB4 import RFDNB4 as model, RFDNB4_P as model_p
-# from models.rfdn_half.RFDNB4S import RFDNB4S as model, RFDNB4S_P as model_p
+from models.rfdn_half.RFDNB4S import RFDNB4S as model, RFDNB4S_P as model_p
 
 
 def main():
