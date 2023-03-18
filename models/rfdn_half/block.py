@@ -160,3 +160,16 @@ class RFDBS_P(nn.Module):
         out_fused = self.esa(self.c5(out))
 
         return out_fused
+
+
+class Cond2dSplit(nn.Conv2d):
+    def __init__(self, in_channels, i, j):
+        super().__init__(in_channels=in_channels, out_channels=j - i, kernel_size=1)
+        assert i < j <= in_channels
+        with torch.no_grad():
+            self.weight[...] = torch.zeros(self.weight.shape)
+            self.bias[...] = torch.zeros(self.bias.shape)
+            self.weight[0:j - i, i:j, 0, 0] = torch.eye(j - i)
+
+    def forward(self, input):
+        return super().forward(input)

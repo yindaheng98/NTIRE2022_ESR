@@ -3,7 +3,7 @@ import torch.nn as nn
 
 import models.rfdn_baseline.block as B
 from .RFDN import RFDN
-from .block import RFDB_P, conv_layer_p, Conv2dCat
+from .block import RFDB_P, conv_layer_p, Conv2dCat, Cond2dSplit
 
 
 class RFDNB2(RFDN):
@@ -34,6 +34,7 @@ class RFDNB2_P(nn.Module):
 
         self.fea_conv12 = conv_layer_p([model.fea_conv, model.fea_conv2],
                                        in_nc, nf, kernel_size=3)
+        self.split = Cond2dSplit(nf * 2, 0, nf)
 
         self.B13 = RFDB_P([model.B1, model.B3], in_channels=nf)
         self.B24 = RFDB_P([model.B2, model.B4], in_channels=nf)
@@ -51,7 +52,7 @@ class RFDNB2_P(nn.Module):
         out_B24 = self.B24(out_B13)
 
         out_B = self.c(self.cat_p(out_B13, out_B24))
-        out_lr = self.LR_conv(out_B) + out_fea12[:, 0:out_fea12.shape[1] // 2]
+        out_lr = self.LR_conv(out_B) + self.split(out_fea12)
 
         output = self.upsampler(out_lr)
 
