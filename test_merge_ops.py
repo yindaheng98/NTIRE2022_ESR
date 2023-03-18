@@ -20,6 +20,7 @@ def main():
     convs_output = conv(torch.cat(inputs, dim=1))
     print(convs_output.shape)
     print(torch.max(torch.abs(conv_output - convs_output)))
+    print(torch.mean(torch.abs(conv_output - convs_output) / torch.abs(conv_output)))
 
 
 if __name__ == "__main__":

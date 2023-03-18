@@ -72,14 +72,28 @@ class ESA_P(ESA):
         self.relu = nn.ReLU(inplace=True)
 
 
-def cat_p(n, *args: torch.Tensor):
-    return torch.cat([
-        torch.cat([
-            arg[:, i * arg.shape[1] // n:(i + 1) * arg.shape[1] // n, ...]
-            for arg in args
-        ], dim=1)
-        for i in range(n)
-    ], dim=1)
+class Conv2dCat(nn.Conv2d):
+    def __init__(self, n: int, in_channels: list[int]):
+        for in_channel in in_channels:
+            assert in_channel % n == 0
+        super().__init__(in_channels=sum(in_channels), out_channels=sum(in_channels), kernel_size=1)
+        with torch.no_grad():
+            self.weight[...] = torch.zeros(self.weight.shape)
+            self.bias[...] = torch.zeros(self.bias.shape)
+            for tensor_i in range(len(in_channels)):  # 哪个tensor
+                channels_of_tensor = in_channels[tensor_i]  # 这个tensor有多少channel
+                channels_to_move = channels_of_tensor // n  # 以多少channel为单位进行移动
+                channel_start_i_of_tensor = sum(in_channels[0:tensor_i])  # 这个tensor的channel开始于何处
+                for split_i in range(n):  # 第几批移动
+                    # 这一批要移动哪些channel
+                    src_idx = channel_start_i_of_tensor + split_i * channels_to_move
+                    # 这一批channel要移动到哪
+                    dst_idx = split_i * sum(in_channels) // n + sum(in_channels[0:tensor_i]) // n
+                    self.weight[dst_idx:dst_idx + channels_to_move, src_idx:src_idx + +channels_to_move, 0, 0] = \
+                        torch.eye(channels_to_move)
+
+    def forward(self, *inputs):
+        return super().forward(torch.cat(inputs, dim=1))
 
 
 class RFDB_P(B.RFDB):
@@ -97,7 +111,8 @@ class RFDB_P(B.RFDB):
         self.act = activation('lrelu', neg_slope=0.05)
         self.c5 = conv_layer_p([m.c5 for m in models], self.dc * 4, in_channels, 1)
         self.esa = ESA_P([m.esa for m in models], in_channels, conv_p)
-        self.n = len(models)
+
+        self.cat_p = Conv2dCat(n=len(models), in_channels=[self.dc * len(models)] * 4)
 
     def forward(self, input):
         distilled_c1 = self.act(self.c1_d(input))
@@ -114,7 +129,7 @@ class RFDB_P(B.RFDB):
 
         r_c4 = self.act(self.c4(r_c3))
 
-        out = cat_p(self.n, distilled_c1, distilled_c2, distilled_c3, r_c4)
+        out = self.cat_p(distilled_c1, distilled_c2, distilled_c3, r_c4)
         out_fused = self.esa(self.c5(out))
 
         return out_fused
@@ -131,7 +146,8 @@ class RFDBS_P(nn.Module):
         self.act = activation('lrelu', neg_slope=0.05)
         self.c5 = conv_layer_p([m.c5 for m in models], self.dc * 2, in_channels, 1)
         self.esa = ESA_P([m.esa for m in models], in_channels, conv_p)
-        self.n = len(models)
+
+        self.cat_p = Conv2dCat(n=len(models), in_channels=[self.dc * len(models)] * 2)
 
     def forward(self, input):
         distilled_c1 = self.act(self.c1_d(input))
@@ -140,7 +156,7 @@ class RFDBS_P(nn.Module):
 
         r_c4 = self.act(self.c4(r_c1))
 
-        out = cat_p(self.n, distilled_c1, r_c4)
+        out = self.cat_p(distilled_c1, r_c4)
         out_fused = self.esa(self.c5(out))
 
         return out_fused
