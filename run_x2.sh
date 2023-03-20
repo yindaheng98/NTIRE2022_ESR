@@ -10,7 +10,7 @@ CUDA_VISIBLE_DEVICES=7 python test_demo.py \
   --lr_dir /home/data/dataset/DIV2K/DIV2K_valid_LR_bicubic/X2 \
   --hr_dir /home/data/dataset/DIV2K/DIV2K_valid_HR \
   --save_dir "$ROOT/results" \
-  --model_path './save_models/RFDN_-10_trainLSDIRX2_Param0.06M/model/model_latest.pt.pth' \
+  --model_path '/home/data/X2_-11/X2_-11_0.03M.pth' \
   --upscale 2
 
 printf "%20s %12s %17s %14s %5s\n" model_name valid_memory valid_ave_runtime valid_ave_psnr flops

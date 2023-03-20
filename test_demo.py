@@ -410,7 +410,7 @@ def _select_model(args, device):
         model.load_state_dict(torch.load(model_path), strict=True)
     elif args.model_path:
         model = torch.load(args.model_path)
-        name = args.model_path
+        name = os.path.basename(args.model_path)
         data_range = 255.0
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
