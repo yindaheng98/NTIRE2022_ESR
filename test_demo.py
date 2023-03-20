@@ -408,12 +408,12 @@ def _select_model(args, device):
         model_path = os.path.join('model_zoo', 'team44_msdn.pth')
         model = MSDN(in_nc=3, nf=56, dist_rate=0.5, num_modules=3, out_nc=3, upscale=4, act_type='silu')
         model.load_state_dict(torch.load(model_path), strict=True)
+    elif args.model_path:
+        model = torch.load(args.model_path)
+        name = args.model_path
+        data_range = 255.0
     else:
         raise NotImplementedError(f"Model {model_id} is not implemented.")
-
-    if args.model_path:
-        model = torch.load(args.model_path)
-        name += args.model_path
 
     return model, name, data_range, tile
 
