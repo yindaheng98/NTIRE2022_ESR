@@ -10,7 +10,7 @@ CUDA_VISIBLE_DEVICES=7 python test_demo.py \
   --lr_dir /home/data/dataset/DIV2K/DIV2K_valid_LR_bicubic/X3 \
   --hr_dir /home/data/dataset/DIV2K/DIV2K_valid_HR \
   --save_dir "$ROOT/results" \
-  --model_path '/home/data/X3_-10/X3_-10_0.03M.pth' \
+  --model_path '/home/data/NTIRE23-RTSR/demo/PRFDN_x3.pth' \
   --upscale 3
 
 printf "%20s %12s %17s %14s %5s\n" model_name valid_memory valid_ave_runtime valid_ave_psnr flops
