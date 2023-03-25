@@ -9,7 +9,7 @@ mkdir -p "$ROOT/results"
 CUDA_VISIBLE_DEVICES=7 python test_demo.py \
   --lr_dir /home/data/dataset/NTIRE23-RTSR/LR2 \
   --hr_dir /home/data/NTIRE23-RTSR/internal/SEU_CNIIx2/results \
-  --save_dir "$ROOT/results" \
+  --save_dir "$ROOT/results_x2" \
   --model_path '/home/data/NTIRE23-RTSR/demo/PRFDN_x2.pth' \
   --upscale 2 \
   --include_test
