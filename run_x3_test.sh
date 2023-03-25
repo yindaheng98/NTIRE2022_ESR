@@ -6,7 +6,7 @@ ROOT=$(dirname $0)
 
 rm -rf "$ROOT/results"
 mkdir -p "$ROOT/results"
-CUDA_VISIBLE_DEVICES=6 python test_demo.py \
+CUDA_VISIBLE_DEVICES=7 python test_demo.py \
   --lr_dir /home/data/dataset/NTIRE23-RTSR/LR3 \
   --hr_dir /home/data/NTIRE23-RTSR/internal/SEU_CNIIx3/results \
   --save_dir "$ROOT/results" \
