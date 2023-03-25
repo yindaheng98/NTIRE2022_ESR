@@ -432,9 +432,9 @@ def select_dataset(lr_dir, hr_dir, mode, args):
     if mode == "test":
         path = [
             (
-                os.path.join(lr_dir, f"{i:04}.png"),
-                os.path.join(hr_dir, f"{i:04}.png")
-            ) for i in range(901, 1001)
+                os.path.join(lr_dir, lr),
+                os.path.join(hr_dir, hr)
+            ) for lr, hr in zip(sorted(os.listdir(args.lr_dir)), sorted(os.listdir(args.hr_dir)))
         ]
         # [f"DIV2K_test_LR/{i:04}.png" for i in range(901, 1001)]
     else:
@@ -594,16 +594,15 @@ def main(args):
         # --------------------------------
         # restore image
         # --------------------------------
-
-        # inference on the validation set
-        valid_results = run(model, model_name, data_range, tile, logger, device, args, mode="valid")
-        # record PSNR, runtime
-        results[model_name] = valid_results
-
         if args.include_test:
             # inference on the test set
             test_results = run(model, model_name, data_range, tile, logger, device, args, mode="test")
-            results[model_name].update(test_results)
+            results[model_name] = test_results
+        else:
+            # inference on the validation set
+            valid_results = run(model, model_name, data_range, tile, logger, device, args, mode="valid")
+            # record PSNR, runtime
+            results[model_name] = valid_results
 
         input_dim = (3, 256, 256)  # set the input dimension
         activations, num_conv = get_model_activation(model, input_dim)
